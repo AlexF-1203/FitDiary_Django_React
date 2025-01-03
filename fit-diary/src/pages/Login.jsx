@@ -1,194 +1,109 @@
-import { View, Text, TextInput, Image, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert
+} from 'react-native';
+import { userAPI } from '../services/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { LinearGradient } from 'expo-linear-gradient';
-import Container from '../components/Container';
-import { login } from '../services/api'; 
 
-const Login = ({ navigation }) => {
+export default function Login({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [token, setToken] = useState(null);
 
   const handleLogin = async () => {
     try {
-      console.log('Attempting login with:', { email });
-      const result = await login({ email, password });
+      const response = await userAPI.login({
+        username: email,
+        password: password
+      });
       
-      console.log('Login result:', result);
-      
-      if (result && result.success && result.userData) {
-        // Store user data
-        await AsyncStorage.setItem('userToken', result.token);
-        await AsyncStorage.setItem('userData', JSON.stringify(result.userData));
-        
-        // Force navigation to Home
-        navigation.reset({
-          index: 0,
-          routes: [{ 
-            name: 'Home',
-            params: { user: result.userData }
-          }],
-        });
-      } else {
-        setError('Login failed - invalid response');
+      if (response.data.access) {
+        await AsyncStorage.setItem('accessToken', response.data.access);
+        await AsyncStorage.setItem('refreshToken', response.data.refresh);
+        navigation.replace('Home');
       }
     } catch (error) {
-      console.error('Login error:', error);
-      setError('Invalid credentials');
+      Alert.alert('Erreur', 'Email ou mot de passe incorrect');
     }
   };
 
   return (
-    <Container>
-    <LinearGradient
-        // Background Linear Gradient
-        colors={['#FBAB7E', '#F7CE68', '#ebb0f2']}
-        style={styles.background}
+    <View style={styles.container}>
+      <Text style={styles.title}>FitDiary</Text>
+      
+      <TextInput
+        style={styles.input}
+        placeholder="Email"
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
+        autoCapitalize="none"
       />
-      <View style={styles.login}>
-        <Image 
-            source={require('../assets/rb_2981.png')} 
-            style={[styles.image, styles.straw]} 
-          />
-          <Image 
-            source={require('../assets/rb_115978.png')} 
-            style={[styles.image, styles.broco]} 
-          />
-        <View style={styles.form}>
-          <Image 
-            source={require('../assets/logo_transparent.png')} 
-            style={styles.logo} 
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Email"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
-          <TouchableOpacity style={styles.button} onPress={handleLogin}>
-            <Text style={styles.buttonText}>Login</Text>
-          </TouchableOpacity>
-          {error ? <Text style={styles.error}>{error}</Text> : null}
-        </View>
-      </View>
-    </Container>
-  )
+      
+      <TextInput
+        style={styles.input}
+        placeholder="Mot de passe"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+      />
+      
+      <TouchableOpacity 
+        style={styles.button}
+        onPress={handleLogin}
+      >
+        <Text style={styles.buttonText}>Se connecter</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+      <Text style={styles.registerLink}>Pas encore de compte ? S'inscrire</Text>
+      </TouchableOpacity>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
-  login: {
+  container: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
-    position: 'relative',
-  },
-  background: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
-    bottom: 0, // Ajouter bottom: 0 pour étendre jusqu'en bas
-  },
-  logo: {
-        width: 100,
-        height: 110,
-        borderRadius: 0,
-        top: -25,
-        alignSelf: 'center',
-    },
-    title: {
-        alignSelf: 'center',
-        top: -25,
-    },
-  image: {
-    position: 'absolute',
-    resizeMode: 'contain',
-  },
-  straw: {
-    width: 275,
-    height: 275,
-    position: 'absolute',
-    top: -150, // Mettre à 0 pour coller en haut
-    right: -90,
-    transform: [{ rotate: '190deg' }],
-    zIndex: 1, // Pour rester derrière le formulaire
-  },
-  broco: {
-    width: 250,
-    height: 250,
-    position: 'absolute',
-    top: -150,
-    left: -90,
-    transform: [{ rotate: '130deg' }],
-    zIndex: 1,
-  },
-  form: {
-    width: '80%',
-    height: 400,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 15,
-    borderWidth: 1,
-    borderColor: '#ddd',
     padding: 20,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    zIndex: 1,
-  },
-  input: {
-    width: '100%',
-    height: 50,
-    borderWidth: 1,
-    borderColor: 'rgba(158, 94, 38, 0.7)',
-    borderRadius: 20,
-    marginVertical: 10,
-    marginTop: 10,
-    paddingHorizontal: 15,
-    backgroundColor: '#fff',
+    backgroundColor: '#fff'
   },
   title: {
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: 'bold',
-    marginBottom: 30,
-    color: '#333',
+    textAlign: 'center',
+    marginBottom: 40,
+    color: '#333'
+  },
+  input: {
+    height: 50,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    paddingHorizontal: 15,
+    marginBottom: 15,
+    fontSize: 16
   },
   button: {
-    width: '100%',
+    backgroundColor: '#007AFF',
     height: 50,
-    backgroundColor: '#F29C23',
-    borderRadius: 20,
+    borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 20
   },
   buttonText: {
     color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 18,
+    fontWeight: 'bold'
   },
-  error: {
-    color: 'red',
-    marginTop: 10,
-    textAlign: 'center',
-  }
+  registerLink: {
+  color: '#F29C23',
+  fontSize: 14,
+  textDecorationLine: 'underline',
+},
 });
-
-export default Login
