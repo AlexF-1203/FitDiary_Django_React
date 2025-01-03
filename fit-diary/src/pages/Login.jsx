@@ -16,20 +16,18 @@ export default function Login({ navigation }) {
 
   const handleLogin = async () => {
     try {
-      const response = await userAPI.login({
-        username: email,
-        password: password
-      });
-      
-      if (response.data.access) {
-        await AsyncStorage.setItem('accessToken', response.data.access);
-        await AsyncStorage.setItem('refreshToken', response.data.refresh);
-        navigation.replace('Home');
-      }
+        const response = await userAPI.login({
+            email: email,  // Actuellement username: email
+            password: password
+        });
+        if (response.data.access) {
+            await AsyncStorage.setItem('accessToken', response.data.access);
+            navigation.replace('Home');
+        }
     } catch (error) {
-      Alert.alert('Erreur', 'Email ou mot de passe incorrect');
+        Alert.alert('Erreur', 'Email ou mot de passe incorrect');
     }
-  };
+};
 
   return (
     <View style={styles.container}>

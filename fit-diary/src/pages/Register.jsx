@@ -20,20 +20,23 @@ const Register = ({ navigation }) => {
 
   const handleRegister = async () => {
     try {
-      const response = await userAPI.register({
-        first_name: firstName,
-        last_name: lastName,
-        email: email,
-        password: password,
-      });
-
-      if (response.data) {
-        navigation.navigate('Login');
-      }
+        console.log("Tentative d'inscription avec:", {
+            firstName: firstName,
+            lastName: lastName,
+            email: email
+        });
+        const response = await userAPI.register({
+            first_name: firstName,
+            last_name: lastName,
+            email: email,
+            password: password
+        });
+        console.log('Réponse:', response);
     } catch (error) {
-      setError(error.response?.data?.email || 'Une erreur est survenue');
+        console.error('Erreur complète:', error);
+        console.error('Données de réponse:', error.response?.data);
     }
-  };
+};
 
   return (
     <Container>
