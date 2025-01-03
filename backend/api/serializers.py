@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-import re
+from .models import Tracker
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -33,5 +33,14 @@ class UserSerializer(serializers.ModelSerializer):
         validated_data['username'] = validated_data['email']
         user = User.objects.create_user(**validated_data)
         return user
+
+class TrackerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tracker
+        fields = ["id", "muscle", "performance", "date", "user"]
+
+    def create(self, validated_data):
+        validated_data['user'] = self.context['request'].user
+        return super().create(validated_data)
 
 
