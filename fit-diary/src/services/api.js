@@ -28,7 +28,10 @@ api.interceptors.request.use(
 // API endpoints
 const userAPI = {
     register: (userData) => api.post('/user/register/', userData),
-    login: (credentials) => api.post('/token/', credentials),
+    login: (credentials) => api.post('/token/', {
+        username: credentials.email,  // Utilisez l'email comme username
+        password: credentials.password
+    }),
     logout: () => api.post('/logout/'),
 };
 

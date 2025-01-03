@@ -17,7 +17,7 @@ export default function Login({ navigation }) {
   const handleLogin = async () => {
     try {
         const response = await userAPI.login({
-            email: email,  // Actuellement username: email
+            username: email,  // Actuellement username: email
             password: password
         });
         if (response.data.access) {
@@ -25,7 +25,11 @@ export default function Login({ navigation }) {
             navigation.replace('Home');
         }
     } catch (error) {
-        Alert.alert('Erreur', 'Email ou mot de passe incorrect');
+        console.error('Network Error:', error);
+        Alert.alert(
+            'Erreur de connexion',
+            'Impossible de se connecter au serveur. Vérifiez votre connexion internet.'
+        );
     }
 };
 
