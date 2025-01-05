@@ -1,60 +1,55 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
+import { TouchableOpacity } from 'react-native';
+import api from '../services/api';
 
 export default function Home({ navigation }) {
-  const [currentUser, setCurrentUser] = useState(null);
-  const [otherUsers, setOtherUsers] = useState([]);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const checkAuth = async () => {
+    const getUser = async () => {
       try {
         const token = await AsyncStorage.getItem('accessToken');
         if (!token) {
           navigation.replace('Login');
           return;
         }
-
-        // Récupérer les informations de l'utilisateur connecté
-        const response = await axios.get('http://localhost:8000/api/user/register/', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setCurrentUser(response.data);
-
-        // Récupérer la liste des autres utilisateurs
-        const usersResponse = await axios.get('http://localhost:8000/api/users/', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setOtherUsers(usersResponse.data.filter(user => user.id !== response.data.id));
+        const response = await api.get('/user/');
+        setUser(response.data);
       } catch (error) {
-        console.error('Auth error:', error);
+        console.error('Error:', error);
         navigation.replace('Login');
       }
     };
-
-    checkAuth();
+    getUser();
   }, []);
+
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('accessToken');
+      navigation.replace('Login');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   return (
     <View style={styles.container}>
-      {currentUser && (
-        <View style={styles.userContainer}>
-          <Text style={styles.title}>Bienvenue sur FitDiary</Text>
-          <Text style={styles.currentUser}>
-            {currentUser.first_name} {currentUser.last_name}
-          </Text>
-        </View>
-      )}
-
-      <View style={styles.otherUsersContainer}>
-        <Text style={styles.subtitle}>Autres utilisateurs :</Text>
-        {otherUsers.map(user => (
-          <Text key={user.id} style={styles.otherUser}>
-            {user.first_name} {user.last_name}
-          </Text>
-        ))}
+     <View style={styles.header}>
+        <TouchableOpacity 
+          style={styles.logoutButton}
+          onPress={handleLogout}
+        >
+          <Text style={styles.logoutText}>Déconnexion</Text>
+        </TouchableOpacity>
       </View>
+      <Text style={styles.title}>Bienvenue sur FitDiary</Text>
+      {user && (
+        <Text style={styles.subtitle}>
+          {user.first_name} {user.last_name}
+        </Text>
+      )}
     </View>
   );
 }
@@ -62,33 +57,33 @@ export default function Home({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: '#fff',
     padding: 20,
-  },
-  userContainer: {
-    alignItems: 'center',
-    marginTop: 50,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
   },
-  currentUser: {
-    fontSize: 20,
-    color: '#007AFF',
-    marginBottom: 40,
-  },
-  otherUsersContainer: {
-    alignItems: 'center',
-  },
   subtitle: {
     fontSize: 18,
-    marginBottom: 10,
+    color: '#007AFF',
   },
-  otherUser: {
-    fontSize: 16,
-    color: 'red',
-    marginVertical: 5,
+
+  header: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+  },
+  logoutButton: {
+    padding: 10,
+    backgroundColor: '#F29C23',
+    borderRadius: 8,
+  },
+  logoutText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
 });

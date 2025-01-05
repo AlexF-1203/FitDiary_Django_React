@@ -15,22 +15,25 @@ export default function Login({ navigation }) {
   const [password, setPassword] = useState('');
 
   const handleLogin = async () => {
-    try {
-        const response = await userAPI.login({
-            username: email,  // Actuellement username: email
-            password: password
-        });
-        if (response.data.access) {
+  try {
+    console.log('Tentative de connexion:', { email, password });
+    const response = await userAPI.login({
+      email: email,
+      password: password
+    });
+    console.log('Réponse:', response.data);
+    
+    if (response.data.access) {
             await AsyncStorage.setItem('accessToken', response.data.access);
-            navigation.replace('Home');
+            setTimeout(() => {
+                navigation.replace('Home');
+            }, 100);
         }
-    } catch (error) {
-        console.error('Network Error:', error);
-        Alert.alert(
-            'Erreur de connexion',
-            'Impossible de se connecter au serveur. Vérifiez votre connexion internet.'
-        );
-    }
+  } catch (error) {
+    console.error('Erreur complète:', error);
+    console.error('Données:', error.response?.data);
+    Alert.alert('Erreur', 'Problème de connexion au serveur');
+  }
 };
 
   return (

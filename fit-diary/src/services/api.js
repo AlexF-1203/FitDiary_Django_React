@@ -7,9 +7,11 @@ const apiUrl = 'http://192.168.1.29:8000/api';
 // Configuration de l'instance axios
 const api = axios.create({
     baseURL: apiUrl,
+    timeout: 10000,
     headers: {
         'Content-Type': 'application/json',
-    }
+        'Accept': 'application/json',
+    },
 });
 // Intercepteur pour ajouter le token d'authentification
 api.interceptors.request.use(
@@ -29,7 +31,7 @@ api.interceptors.request.use(
 const userAPI = {
     register: (userData) => api.post('/user/register/', userData),
     login: (credentials) => api.post('/token/', {
-        username: credentials.email,  // Utilisez l'email comme username
+        username: credentials.email.toLowerCase(),
         password: credentials.password
     }),
     logout: () => api.post('/logout/'),

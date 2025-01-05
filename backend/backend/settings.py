@@ -33,6 +33,13 @@ DEBUG = True
 # ALLOWED_HOSTS = ["*"]
 ALLOWED_HOSTS = ['192.168.1.29', '192.168.1.29:8000', 'localhost', 'localhost:8000']
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "http://10.0.2.2:8000",
+    "http://192.168.1.29:8000"
+]
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
