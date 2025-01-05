@@ -31,13 +31,20 @@ SECRET_KEY = 'django-insecure-=x@l4(8z_atyo2%o0i^8ep(&&lg(7phm6b&r7)2olms_p^#4r^
 DEBUG = True
 
 # ALLOWED_HOSTS = ["*"]
-ALLOWED_HOSTS = ['192.168.1.29', '192.168.1.29:8000', 'localhost', 'localhost:8000']
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '172.25.86.210',
+    '*'
+]
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
     "http://127.0.0.1:8000",
-    "http://10.0.2.2:8000",
-    "http://192.168.1.29:8000"
+    "http://172.25.86.210:8000",
+    "exp://172.25.86.210:19000",
+    "exp://localhost:19000",
+    "http://localhost:19000"
 ]
 
 REST_FRAMEWORK = {
@@ -69,6 +76,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",  # Must be first
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -76,7 +84,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    "corsheaders.middleware.CorsMiddleware",
 ]
 
 ROOT_URLCONF = 'backend.urls'
